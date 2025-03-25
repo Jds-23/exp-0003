@@ -18,9 +18,14 @@ import { useCallsStatus, useSendCalls } from 'wagmi/experimental'
 export function App() {
   useNukeEverything()
 
+  const telegramUserId = new URLSearchParams(window.location.search).get('telegramUserId')
+
   return (
     <main>
-      <DebugLink />
+      {
+        telegramUserId ? 
+        <>
+        <DebugLink />
       <hr />
       <details>
         <summary style={{ fontSize: '1.25rem' }}>State</summary>
@@ -38,10 +43,16 @@ export function App() {
       <RequestKey />
       <hr />
       <GrantPermissions />
-      <hr />
-      <Mint />
-      <hr />
-      <DemoScheduler />
+        </>
+       : (
+        <>
+        <p>Try out tg bot</p>
+        <a href="https://t.me/tg_erc_bot">https://t.me/tg_erc_bot</a>
+        </>
+        
+      )
+      }
+      
     </main>
   )
 }
@@ -238,12 +249,14 @@ function RequestKey() {
   const { address } = useAccount()
 
   // const { refetch } = useDebug({ enabled: !!address, address })
+  const telegramUserId = new URLSearchParams(window.location.search).get('telegramUserId')
 
   const requestKeyMutation = useMutation<Key>({
     mutationFn: async () => {
       if (!address) return
       const searchParams = new URLSearchParams({
         expiry: permissions().expiry.toString(),
+        telegramUserId: telegramUserId ?? '',
       })
       const response = await fetch(
         `${SERVER_URL}/keys/${address.toLowerCase()}?${searchParams.toString()}`,

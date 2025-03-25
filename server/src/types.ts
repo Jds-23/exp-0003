@@ -5,8 +5,11 @@ export interface Env {
   ADMIN_USERNAME: string
   ADMIN_PASSWORD: string
   ENVIRONMENT: 'development' | 'production'
+  BOT_TOKEN: string
   DB: D1Database
   WORKFLOW_01: Workflow<WorkflowParams>
+  CLIENT_URL: string
+  TELEGRAM_TOKEN: string
 }
 
 interface BaseAttributes {
@@ -40,6 +43,7 @@ export type KeyPair = Pretty<
     expiry: number
     type: 'p256'
     role: 'session' | 'admin'
+    telegram_user_id: string
   }
 >
 

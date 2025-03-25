@@ -8,9 +8,10 @@ export const ServerKeyPair = {
     env: Env,
     {
       address,
+      telegramUserId,
       role = 'session',
       expiry = Math.floor(Date.now() / 1_000) + 60 * 2, // 2 minutes by default
-    }: { address: string; expiry?: number; role?: 'session' | 'admin' },
+    }: { address: string; telegramUserId: string; expiry?: number; role?: 'session' | 'admin' },
   ): Promise<GeneratedKeyPair> => {
     const privateKey = P256.randomPrivateKey()
     const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
@@ -29,9 +30,9 @@ export const ServerKeyPair = {
     const insertStatement = env.DB.prepare(
       /* sql */
       `INSERT INTO keypairs
-      (address, public_key, private_key, role, type, expiry)
-      VALUES (?, ?, ?, ?, ?, ?);`,
-    ).bind(address.toLowerCase(), publicKey, privateKey, role, 'p256', expiry)
+      (address, public_key, private_key, role, type, expiry, telegram_user_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?);`,
+    ).bind(address.toLowerCase(), publicKey, privateKey, role, 'p256', expiry, telegramUserId)
 
     const [deleteQuery, insertQuery] = await env.DB.batch<D1PreparedStatement>([
       deleteStatement,
@@ -50,6 +51,7 @@ export const ServerKeyPair = {
       expiry,
       address,
       type: 'p256',
+      telegram_user_id: telegramUserId,
     } as const
   },
   getFromStore: async (env: Env, { address }: { address: string }) => {

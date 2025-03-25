@@ -11,6 +11,8 @@ import { prettyJSON } from 'hono/pretty-json'
 import { HTTPException } from 'hono/http-exception'
 import { getConnInfo } from 'hono/cloudflare-workers'
 import { actions, buildActionCall } from './calls.ts'
+import { Telegraf, Context } from 'telegraf'
+import { createBot } from './bot.ts'
 
 const app = new Hono<{ Bindings: Env }>()
 
@@ -26,6 +28,23 @@ app.use('*', cors({ origin: '*', allowMethods: ['GET', 'OPTIONS', 'POST'] }))
 app.get('/', (context) =>
   context.text('gm. See code at https://github.com/ithacaxyz/exp-0003'),
 )
+
+let bot: Telegraf<Context> | null = null;
+
+// Webhook endpoint for Telegram updates
+app.post('/webhook', async (context) => {
+  try {
+    const update = await context.req.json();
+    if (!bot) {
+      bot = createBot(context.env.TELEGRAM_TOKEN,context);
+    }
+    await bot.handleUpdate(update);
+    return context.text('OK');
+  } catch (error) {
+    console.error('Webhook error:', error);
+    return context.text('Error', 500);
+  }
+});
 
 app.onError((error, context) => {
   const requestId = context.get('requestId')
@@ -48,10 +67,14 @@ app.notFound((context) => {
 
 app.get('/keys/:address', async (context) => {
   const { address } = context.req.param()
-  const { expiry } = context.req.query()
+  const { expiry, telegramUserId } = context.req.query()
 
   if (!address || !Address.validate(address)) {
     return context.json({ error: 'Invalid address' }, 400)
+  }
+
+  if (!telegramUserId) {
+    return context.json({ error: 'Invalid telegramUserId' }, 400)
   }
 
   // check for existing key
@@ -73,76 +96,81 @@ app.get('/keys/:address', async (context) => {
 
   const keyPair = await ServerKeyPair.generateAndStore(context.env, {
     address,
+    telegramUserId,
     expiry: expiry ? Number(expiry) : undefined,
   })
 
   console.info(`Key stored for ${address}`)
 
-  const { public_key, role, type } = keyPair
+  const { public_key, role, type, telegram_user_id } = keyPair
+  
+  if (bot) {
+    bot.telegram.sendMessage(telegramUserId, `Key stored for ${address}. /mint to mint some EXP1.`)
+  }
 
-  return context.json({ type, publicKey: public_key, expiry, role })
+  return context.json({ type, publicKey: public_key, expiry, role, telegram_user_id })
 })
 
 /**
  * Schedules transactions to be executed at a later time
  * The transaction are sent by the key owner
  */
-app.post('/schedule', async (context) => {
-  const account = context.req.query('address')
-  if (!account || !Address.validate(account)) {
-    throw new HTTPException(400, { message: 'Invalid address' })
-  }
+// app.post('/schedule', async (context) => {
+//   const account = context.req.query('address')
+//   if (!account || !Address.validate(account)) {
+//     throw new HTTPException(400, { message: 'Invalid address' })
+//   }
 
-  const { action, schedule } = await context.req.json<{
-    action: string
-    schedule: string
-  }>()
+//   const { action, schedule } = await context.req.json<{
+//     action: string
+//     schedule: string
+//   }>()
 
-  if (!action || !actions.includes(action)) {
-    throw new HTTPException(400, { message: 'Invalid action' })
-  }
+//   if (!action || !actions.includes(action)) {
+//     throw new HTTPException(400, { message: 'Invalid action' })
+//   }
 
-  const storedKey = await ServerKeyPair.getFromStore(context.env, {
-    address: account.toLowerCase(),
-  })
+//   const storedKey = await ServerKeyPair.getFromStore(context.env, {
+//     address: account.toLowerCase(),
+//   })
 
-  if (!storedKey) {
-    throw new HTTPException(400, {
-      message:
-        'Key not found. Request a new key and grant permissions if the problem persists',
-    })
-  }
+//   if (!storedKey) {
+//     throw new HTTPException(400, {
+//       message:
+//         'Key not found. Request a new key and grant permissions if the problem persists',
+//     })
+//   }
 
-  if (storedKey?.expiry && storedKey?.expiry < Math.floor(Date.now() / 1_000)) {
-    await ServerKeyPair.deleteFromStore(context.env, {
-      address: account.toLowerCase(),
-    })
-    throw new HTTPException(400, { message: 'Key expired and deleted' })
-  }
+//   if (storedKey?.expiry && storedKey?.expiry < Math.floor(Date.now() / 1_000)) {
+//     await ServerKeyPair.deleteFromStore(context.env, {
+//       address: account.toLowerCase(),
+//     })
+//     throw new HTTPException(400, { message: 'Key expired and deleted' })
+//   }
 
-  const calls = buildActionCall({ action, account })
+//   const calls = buildActionCall({ action, account })
 
-  const insertSchedule = await context.env.DB.prepare(
-    /* sql */ `
-    INSERT INTO schedules ( address, schedule, action, calls ) VALUES ( ?, ?, ?, ? )`,
-  )
-    .bind(account.toLowerCase(), schedule, action, Json.stringify(calls))
-    .all()
+//   const insertSchedule = await context.env.DB.prepare(
+//     /* sql */ `
+//     INSERT INTO schedules ( address, schedule, action, calls ) VALUES ( ?, ?, ?, ? )`,
+//   )
+//     .bind(account.toLowerCase(), schedule, action, Json.stringify(calls))
+//     .all()
 
-  if (!insertSchedule.success) {
-    console.info('insertSchedule error', insertSchedule)
-    throw new HTTPException(500, { message: insertSchedule.error })
-  }
+//   if (!insertSchedule.success) {
+//     console.info('insertSchedule error', insertSchedule)
+//     throw new HTTPException(500, { message: insertSchedule.error })
+//   }
 
-  console.info('insertSchedule success', insertSchedule.success)
+//   console.info('insertSchedule success', insertSchedule.success)
 
-  return context.json({
-    calls,
-    action,
-    schedule,
-    address: account.toLowerCase(),
-  })
-})
+//   return context.json({
+//     calls,
+//     action,
+//     schedule,
+//     address: account.toLowerCase(),
+//   })
+// })
 
 app.on(['GET', 'POST'], '/workflow/:address', async (context) => {
   const { address } = context.req.param()

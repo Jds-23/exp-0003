@@ -16,6 +16,7 @@
   "dependencies": {
     "@hono/cloudflare-access": "^0.2.0",
     "hono": "^4.7.2",
+    "viem": "^2.23.14",
     "ox": "catalog:",
     "porto": "catalog:"
   },

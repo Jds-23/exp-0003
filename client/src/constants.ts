@@ -20,6 +20,14 @@ export const permissions = () =>
           signature: 'transfer(address,uint256)',
           to: ExperimentERC20.address[0],
         },
+        {
+          signature: 'mint(address,uint256)',
+          to: ExperimentERC20.address[0],
+        },
+        {
+          signature: 'mint(address,uint256)',
+          to: ExperimentERC20.address[1],
+        },
       ],
       spend: [
         {
