@@ -3,7 +3,7 @@
 
 # start of globally inheritable configuration
 #
-name = "exp-0003-server-dev"
+name = "exp-tg-bot-server-dev"
 main = "./src/main.ts"
 minify = true
 keep_vars = true
@@ -23,7 +23,7 @@ port = 6900
 [[d1_databases]]
 binding = "DB"
 database_name = "offline-demo-txs"
-database_id = "80b220b8-9f1d-4179-8383-ddeeeac6fcf0"
+database_id = "6523f508-ed43-4f16-9bcb-7df69b3eeb04"
 
 [[workflows]]
 name = "WORKFLOW_01"
@@ -31,14 +31,14 @@ binding = "WORKFLOW_01"
 class_name = "Workflow01"
 
 [env.production]
-name = "exp-0003-server"
+name = "exp-tg-bot-server"
 workers_dev = true
-vars = { ENVIRONMENT = "production" }
+vars = { ENVIRONMENT = "production", CLIENT_URL = "https://exp-tg-bot-client.joydeepsingha68.workers.dev" }
 
 [[env.production.d1_databases]]
 binding = "DB"
 database_name = "offline-demo-txs"
-database_id = "bcc90687-1428-41ca-8825-20d84358e256"
+database_id = "6523f508-ed43-4f16-9bcb-7df69b3eeb04"
 
 
 [[env.production.workflows]]

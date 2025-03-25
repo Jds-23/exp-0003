@@ -1,8 +1,8 @@
 {
-  "name": "exp-0003",
+  "name": "exp-tg-bot",
   "private": true,
   "type": "module",
-  "repository": "github:ithacaxyz/exp-0003",
+  "repository": "github:ithacaxyz/exp-tg-bot",
   "scripts": {
     "dev": "pnpm --filter='*' dev",
     "build": "pnpm --filter='*' build",

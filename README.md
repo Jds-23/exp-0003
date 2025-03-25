@@ -2,7 +2,7 @@
 
 ![Cover](./.github/cover.svg)
 
-[Read the Blog Post](https://ithaca.xyz/updates/exp-0003)
+[Read the Blog Post](https://ithaca.xyz/updates/exp-tg-bot)
 
 ## Overview
 
@@ -33,8 +33,8 @@
 
 ### Live demo
 
-- <a href="https://exp-0003-client.evm.workers.dev" target="_blank">exp-0003-client.evm.workers.dev</a> - Client
-- <a href="https://exp-0003-server.evm.workers.dev" target="_blank">exp-0003-server.evm.workers.dev</a> - Server
+- <a href="https://exp-tg-bot-client.evm.workers.dev" target="_blank">exp-tg-bot-client.evm.workers.dev</a> - Client
+- <a href="https://exp-tg-bot-server.evm.workers.dev" target="_blank">exp-tg-bot-server.evm.workers.dev</a> - Server
 
 ### Keywords
 

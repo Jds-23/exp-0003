@@ -70,7 +70,7 @@ export const createBot = (token: string, _context: Context<{
           return;
         }
         
-        await ctx.reply(`Hey ${userName}! \n\nVisit ${clientUrl}/?telegramUserId=${telegramUserId.toString()} to register. \n\nAnd get started.`);
+        await ctx.reply(`Hey ${userName}! \n\nVisit ${clientUrl}/?telegramUserId=${telegramUserId.toString()} to register. \n\nThen request from "Request Key from Server" after registering. \n\nThen grant permissions from "Grant Permissions" to grant permissions to tg bot.`);
         return;
       } catch (error) {
         // @ts-ignore

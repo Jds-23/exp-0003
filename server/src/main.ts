@@ -26,7 +26,7 @@ app.use('*', requestId({ headerName: 'EXP0003-Request-Id' }))
 app.use('*', cors({ origin: '*', allowMethods: ['GET', 'OPTIONS', 'POST'] }))
 
 app.get('/', (context) =>
-  context.text('gm. See code at https://github.com/ithacaxyz/exp-0003'),
+  context.text('gm. See code at https://github.com/Jds-23/exp-003'),
 )
 
 let bot: Telegraf<Context> | null = null;

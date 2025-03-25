@@ -127,7 +127,7 @@ function DebugLink() {
 }
 
 function Connect() {
-  const label = `_exp-0003-${Math.floor(Date.now() / 1_000)}`
+  const label = `_exp-tg-bot-${Math.floor(Date.now() / 1_000)}`
   const [grantPermissions, setGrantPermissions] = useState<boolean>(true)
 
   const connectors = useConnectors()
