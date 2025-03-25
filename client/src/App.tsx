@@ -47,7 +47,7 @@ export function App() {
        : (
         <>
         <p>Try out tg bot</p>
-        <a href="https://t.me/tg_erc_bot">https://t.me/tg_erc_bot</a>
+        <a href="https://t.me/tg_7702_bot">https://t.me/tg_7702_bot</a>
         </>
         
       )
